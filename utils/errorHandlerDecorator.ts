@@ -19,13 +19,13 @@ function catchError(target: any,propertyName: any,descriptor: any) {
     console.log('----------------------------------------------------s-s-s-s------------------',this)
 
         try {
-            console.log(this,'---------x-xx-------------')
-            method.apply(this,        ).catch((err: any) => {
+            console.log(this,'---------x-xx-------------', args)
+            return method.call(...args).catch((err: any) => {
                 // console.log('this0----------------------', this.next.toString());/
                 // console.log(err);
                 console.log('-000000000000000000000--------------------------------------------------')
                 this.next(err)
-                console.log('-000000000000000000000--------------------------------------------------')
+                console.log('-0xxxx00000000000000000000--------------------------------------------------')
 
             })
         }
