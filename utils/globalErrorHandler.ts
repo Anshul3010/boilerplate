@@ -33,12 +33,10 @@ const ErrProd = (err: any, res: any) => {
   }; 
 
 
-const globalErrorHandler: any = (err: any, req: any, res: any, next: any) => {
-  console.log('----------------------------globalerrorhandler---------------------');
+const globalErrorHandler = (err: any, req: any, res: any, next: any) => {
+  console.log('0----------------------------globalErrorHandler----------------------');
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
-    // console.log(err.message);
-    // console.log(err);
     if(process.env.NODE_ENV === 'development'){
         Errdev(err,res);
     }else if(process.env.NODE_ENV === 'production'){
@@ -50,11 +48,17 @@ const globalErrorHandler: any = (err: any, req: any, res: any, next: any) => {
 const requestHandler = async (calledFunction: any, res: any, next: NextFunction, ...args: any) => {
   try {
       let result = await calledFunction(...args)
-      console.log( result, 'result 1')
       return result;
   } catch(err) {
     next(err);
   }
 }
 
-export  {globalErrorHandler, requestHandler}
+
+const catchAsync = (fn: any) => {
+  return (req:any, res: any, next: NextFunction) => {
+      fn(req, res, next).catch((err: any) => {next(err)})
+  }
+}
+
+export  {globalErrorHandler, requestHandler, catchAsync}

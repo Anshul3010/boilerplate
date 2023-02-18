@@ -6,45 +6,26 @@ import { BaseService } from "../utils/ServiceHandler";
 import CustomError  from "../utils/error";
 import { ResponseBodyWrapper } from "../utils/ResponseWrapper";
 import jsonWebToken from 'jsonwebtoken';
-import { NextFunction } from "express";
-import catchError from "../utils/errorHandlerdecorator";
 
 class Auth {
     private userModel: any;
     customError: any;
-    next: any
-
-    constructor(next: NextFunction) {
+    constructor() {
         this.customError = new CustomError()
-        console.log('inside cons', this.customError)
         this.userModel = UserModel;
-        this.next = next
-        console.log(this.next.toString(), 'llmlk--------------------')
-        // console.log(this.login.toString())
-        // console.log(this.register.toString())
-
     }
 
-    @catchError
     async login(userCerdentials: any) {
-        console.log('holeloenflknc')
-        console.log(userCerdentials, 'hohohoh');
-        console.log(this, 'jjjj')
-        console.log('jdbjhskjdjl', this.customError)
-        // return this.customError.unAuthorized()
-        throw new Error(this.customError.unAuthorized())
-        // this.next('kkkkk')
-        // let userProfile = await this.userModel.findOne({"email": userCerdentials.email});
-        // if(lodash.isEmpty(userProfile)) {
-        //     return this.customError.unAuthorized();
-        // }
-        // let correctUser: boolean = await this.compare(userCerdentials.password, userProfile.password);
-        // if(!correctUser) {
-        //     return this.customError.unAuthorized();
-        // }
-        // // const token = await this.createAccessToken({email: userProfile.email, firstName: userProfile.first_name, lastName: userProfile.last_name});
-        // const token: string = await this.createAccessToken(userProfile);
-        // return ResponseBodyWrapper(200, 'Login Successful', {token})
+        let userProfile = await this.userModel.findOne({"email": userCerdentials.email});
+        if(lodash.isEmpty(userProfile)) {
+            return this.customError.unAuthorized();
+        }
+        let correctUser: boolean = await this.compare(userCerdentials.password, userProfile.password);
+        if(!correctUser) {
+            return this.customError.unAuthorized();
+        }
+        const token: string = await this.createAccessToken(userProfile);
+        return ResponseBodyWrapper(200, 'Login Successful', {token})
     }
 
     async register(userInformation: any) {

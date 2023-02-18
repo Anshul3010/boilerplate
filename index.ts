@@ -37,7 +37,7 @@ app.use(globalErrorHandler);
 // const handler = require('./socket/eventHandler')
 
 
-server.listen(3000, ()=> {
+server.listen(process.env.PORT ?? 3000, ()=> {
     console.log('server is listening to port 3000')    
 });
 

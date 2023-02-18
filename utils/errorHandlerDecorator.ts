@@ -1,40 +1,10 @@
 function catchError(target: any,propertyName: any,descriptor: any) {
-    console.log('target------------------------',target)
-    console.log('propertyName------------------------',propertyName)
-    console.log('descriptor------------------------',descriptor)
-
-
     const method = descriptor.value;
-    // descriptor.value = function(this: any, ...args: any) {
-    //     console.log('args--------',args)
-    //         return method.apply(this, args).catch((err: any) => {
-    //             // return next(err)
-    //             console.log('-----this----------', this.next)
-    //             console.log(err);
-    //             this.next('test error hola');
-    //         });
-    // };
-    // return descriptor;
     let fn = function(this: any, ...args: any) {
-    console.log('----------------------------------------------------s-s-s-s------------------',this)
-
-        try {
-            console.log(this,'---------x-xx-------------', args)
-            return method.call(...args).catch((err: any) => {
-                // console.log('this0----------------------', this.next.toString());/
-                // console.log(err);
-                console.log('-000000000000000000000--------------------------------------------------')
-                this.next(err)
-                console.log('-0xxxx00000000000000000000--------------------------------------------------')
-
+            return method.call(this,...args).catch((err: any) => {
+                console.log(this.next)
+                return this.next(err)
             })
-        }
-        catch(err) {
-            console.log('------------------------------------cjcj-----------', err);
-            this.next(err);
-        }
-
-        
     }
 
     descriptor.value = fn;
