@@ -8,7 +8,6 @@ import CustomError  from "../utils/error";
 import { ResponseBodyWrapper } from "../utils/ResponseWrapper";
 import jsonWebToken from 'jsonwebtoken';
 import { ObjectId } from "mongoose";
-// import emailService = require('./../utils/emailService')
 import { sendPlainMail } from "../utils/emailService";
 import {forgotPasswordEmailTemplate} from './../utils/templates/forgotPasswordEmail';
 import {otpTemplate} from './../utils/templates/otpTemplate';
@@ -45,7 +44,13 @@ class Auth {
         return `${process.env.FRONTENDURL}${btoa(`${userId}-${utcTime}`)}`
     }
 
-    async sendOTP(userId: string, email: string, name: string) {
+    async sendOTP(userId: string, email: string, name: string, sendResponse: boolean = false) {
+        let user;
+        if(sendResponse) {
+            user = await this.userModel.findOne({email: email});
+            userId = user._id;
+            name = user.name;
+        }
         const uniqueOTP = Math.floor(100000 + Math.random() * 900000)
         const timestamp = new Date().getTime()
         await this.otpModel.findOneAndUpdate({userId: userId},{userId: userId, otp: `${uniqueOTP}`, timestamp: timestamp}, {upsert: true});
@@ -53,14 +58,17 @@ class Auth {
             from: process.env.EMAIL,
             to: email,
             subject: 'OTP',
-            text: '',
+            text: 'OTP',
             html: otpTemplate(name, `${uniqueOTP}`),
         })
+        if(sendResponse) {
+            return ResponseBodyWrapper(200, 'Email sent successfully')
+        }
     }
 
 
     async validateOTP(userId: ObjectId, userOTP: string) {
-        const otpInformation = this.otpModel.findOne({userId: userId});
+        const otpInformation = await this.otpModel.findOne({"userId": userId});
         const currentTimestamp = new Date().getTime();
         if(currentTimestamp - (parseInt(otpInformation)+900000)<0) {
             return this.customError.badRequest('OTP expired')
@@ -84,7 +92,8 @@ class Auth {
         if(!correctUser) {
             return this.customError.unAuthorized();
         }
-        return ResponseBodyWrapper(200, 'Password Validated')
+        this.sendOTP(userProfile._id, userProfile.email, userProfile.name)
+        return ResponseBodyWrapper(200, 'Password Validated', [userProfile])
     }
 
     async register(userInformation: any) {
@@ -103,8 +112,8 @@ class Auth {
     }
 
 
-    async forgotPassword(id: ObjectId) {
-        const user =  await this.userModel.find({_id: "id"});
+    async forgotPassword(email: String) {
+        const user =  await this.userModel.find({email: email});
         if(!user.length) {
             return this.customError.badRequest('No User with Found')
         }

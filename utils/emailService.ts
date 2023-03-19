@@ -1,5 +1,5 @@
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.sendGridKey);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 interface IMailOption {
   from: string | undefined;
@@ -9,8 +9,8 @@ interface IMailOption {
   html?: string;
 }
 
-const sendPlainMail = (mailOptions: any) => {
-  sgMail.send(mailOptions);
+const sendPlainMail = async (mailOptions: any) => {
+    sgMail.send(mailOptions);
 };
 
 export { sendPlainMail };

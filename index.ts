@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import dotenv from 'dotenv';
 dotenv.config()
 
+import { db } from './connection';
 import {globalErrorHandler} from './utils/globalErrorHandler';
 
 import authRouter from './routes/auth';
@@ -37,8 +38,9 @@ app.use(globalErrorHandler);
 // const handler = require('./socket/eventHandler')
 
 
-server.listen(process.env.PORT ?? 3000, ()=> {
-    console.log('server is listening to port 3000')    
+server.listen(process.env.PORT ?? 3000, async ()=> {
+  await db()
+  console.log('server is listening to port 3000')    
 });
 
 

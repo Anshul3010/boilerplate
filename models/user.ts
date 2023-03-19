@@ -1,10 +1,7 @@
 import mongoose from "mongoose";
 
 let schema = new mongoose.Schema({
-    first_name: {
-        type: String
-    },
-    last_name: {
+    name: {
         type: String
     },
     email: {
